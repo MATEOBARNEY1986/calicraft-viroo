@@ -5,6 +5,7 @@ using Viroo.Interactions;
 //   "r|x|y|z"        se rompió el bloque de esa celda
 //   "p|x|y|z|tipo"   se puso un bloque (tipo = número del enum B)
 //   "m|i"            se encontró la memoria número i
+//   "v|i|k"          la pantalla de la memoria i pone su video k (k = -1: detener). No se repite al entrar tarde.
 // Execute(...) lo corre en TODOS (también en quien lo envía). Con persistencia "All", el servidor guarda
 // la lista completa y, a quien entra tarde, VIROO le llama RestoreState una vez por cada mensaje, en orden:
 // así reconstruye el mismo mundo. Va en el mismo GameObject que Mundo (escena Calicraft, dentro de Root).

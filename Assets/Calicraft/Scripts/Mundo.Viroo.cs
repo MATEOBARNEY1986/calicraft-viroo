@@ -101,6 +101,7 @@ public partial class Mundo
         if (hud == null) CrearHud();
         if (panel == null) CrearPanel();
         if (marco == null) CrearMarco();
+        CrearPantallas();   // las pantallas de video de los monumentos (Mundo.Videos.cs)
 
         // lo que llegó por la red mientras se construía el mundo (incluye lo de quien entra tarde)
         var lista = new List<(string, bool)>(pendientes);
@@ -134,7 +135,7 @@ public partial class Mundo
         }
 
         if (cambiar) { tipoSel = (tipoSel + 1) % BLOQUES; Sonar("clic"); Aviso("Bloque: " + tipos[tipoSel].nombre); }
-        if (romper && !TocarMemoriaConRayo(rayo)) RomperRed(rayo);
+        if (romper && !TocarBotonVideo(rayo) && !TocarMemoriaConRayo(rayo)) RomperRed(rayo);
         if (poner) PonerRed(rayo);
 
         MostrarMarco(rayo);
@@ -267,6 +268,7 @@ public partial class Mundo
                 case "r": AplicarRomper(Celda3(p)); break;
                 case "p": AplicarPoner(Celda3(p), (B)int.Parse(p[4], CultureInfo.InvariantCulture)); break;
                 case "m": RecogerMemoria(int.Parse(p[1], CultureInfo.InvariantCulture)); break;
+                case "v": ReproducirVideo(int.Parse(p[1], CultureInfo.InvariantCulture), int.Parse(p[2], CultureInfo.InvariantCulture)); break;
                 default: Debug.LogWarning("[Calicraft] Mensaje desconocido: " + datos); break;
             }
         }

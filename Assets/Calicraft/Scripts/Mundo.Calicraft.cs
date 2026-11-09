@@ -230,10 +230,19 @@ public partial class Mundo
         if (silencio) return;
         consignaVista = m;
         tConsigna = m.enlaces != null && m.enlaces.Length > 0 ? 25f : 14f;
-        // (VIROO) en las gafas no hay botones de enlace: se nombran los videos para buscarlos en clase
+        // (VIROO) en las gafas no se abren páginas: los videos están en la pantalla de al lado
+        // (Mundo.Videos.cs) y el cómic y los micrositios quedan con su dirección para visitarlos después
         string texto = m.consigna;
-        if (m.enlaces != null && m.enlaces.Length > 0)
-            texto += "\n\n<color=#F06AA8>Para ver después: " + string.Join(" · ", System.Array.ConvertAll(m.enlaces, e => e.texto)) + "</color>";
+        if (m.enlaces != null)
+        {
+            bool hayVideo = false;
+            var webs = new System.Collections.Generic.List<string>();
+            foreach (var e in m.enlaces)
+                if (IdYouTube(e.url) != null) hayVideo = true;
+                else webs.Add($"{e.texto}: {e.url.Replace("https://", "").Replace("/preview", "").TrimEnd('/')}");
+            if (hayVideo) texto += "\n\n<color=#F06AA8>Mira el video en la pantalla de al lado.</color>";
+            if (webs.Count > 0) texto += "\n\n<color=#F06AA8>Para visitar después:\n" + string.Join("\n", webs) + "</color>";
+        }
         MostrarPanel(m.nombre, texto, ColorCat(m.cat), donde);
     }
 
