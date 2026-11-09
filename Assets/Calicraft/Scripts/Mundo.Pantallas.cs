@@ -37,7 +37,9 @@ public partial class Mundo
     }
 
     // =====================================================================
-    void OnGUI()
+    // (VIROO) Las pantallas de escritorio (portada, minimapa, HUD con OnGUI) no se ven en las gafas:
+    // se renombró para que Unity no la llame. El HUD de VIROO es 3D (Mundo.Viroo.cs).
+    void OnGUI_Escritorio()
     {
         float esc = Screen.height / 648f;                       // como el viewport 1152x648 de Godot
         GUI.matrix = Matrix4x4.Scale(new Vector3(esc, esc, 1));

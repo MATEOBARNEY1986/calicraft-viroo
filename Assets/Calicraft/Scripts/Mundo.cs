@@ -20,15 +20,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// VERSIÓN VIROO: Mundo ya no se crea solo; vive en la escena Calicraft (dentro de Root), junto a
+// CalicraftRed. El jugador, la cámara y el movimiento los pone VIROO (ver Mundo.Viroo.cs).
 public partial class Mundo : MonoBehaviour
 {
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-    static void Arranque()
-    {
-        if (FindFirstObjectByType<Mundo>() != null) return;
-        new GameObject("Mundo").AddComponent<Mundo>();
-    }
-
     // ---------- estado de la partida (como mundo.gd) ----------
     int gemas, meta, vidas = 3, puntos, derrotados;
     public bool termino, jugando = true;
@@ -99,11 +94,7 @@ public partial class Mundo : MonoBehaviour
     // =====================================================================
     async void Start()
     {
-        // Apaga cámara/luz/oído que trae la escena vacía para que no choquen con las del juego
-        foreach (var c in FindObjectsByType<Camera>(FindObjectsSortMode.None)) c.enabled = false;
-        foreach (var l in FindObjectsByType<Light>(FindObjectsSortMode.None)) l.enabled = false;
-        foreach (var a in FindObjectsByType<AudioListener>(FindObjectsSortMode.None)) a.enabled = false;
-
+        // (VIROO) no se apagan cámaras ni luces de la escena: son las del rig de VIROO
         fuente = Resources.Load<Font>("PressStart2P-Regular");
         audioSrc = gameObject.AddComponent<AudioSource>();
         foreach (var s in new[] { "gema", "golpe", "gameover", "ganar", "clic" })
@@ -121,23 +112,18 @@ public partial class Mundo : MonoBehaviour
         QualitySettings.shadowDistance = 45;
         QualitySettings.pixelLightCount = 4;
 
-        cam = new GameObject("Camara").AddComponent<Camera>();
-        cam.gameObject.tag = "MainCamera";   // para que los rótulos de los monumentos la miren
-        cam.gameObject.AddComponent<AudioListener>();
-        cam.fieldOfView = 75;
-        cam.nearClipPlane = 0.1f;
-        cam.farClipPlane = 160;
-        cam.cullingMask = ~0;
+        // la cámara es la del rig de VIROO (gafas o escritorio); solo se le alarga la vista
+        cam = await CamaraViroo();
+        if (cam != null && cam.farClipPlane < 160) cam.farClipPlane = 160;
 
         ciclo = gameObject.AddComponent<CicloDia>();
         ciclo.sol = sol;
         ciclo.luna = luna;
         ciclo.cam = cam;
         ciclo.cielo = Cielo();
-        CrearMinimapa();
+        // sin minimapa (no hay pantalla en VR) ni personajes del curso (VIROO pone los avatares)
 
         await PrecargarTexturas();
-        await CargarPersonajes();
         Construir();
     }
 
@@ -154,7 +140,8 @@ public partial class Mundo : MonoBehaviour
         termino = false; invencible = 0; golpeAlpha = 0; sacudida = 0; tituloFin = "";
         gemasObj.Clear(); corazones.Clear(); cuerposEnemigos.Clear(); giran.Clear();
         listaModelos.Clear(); enemigos.Clear();
-        semilla = Random.Range(1, 100000);
+        semilla = SEMILLA;                 // (VIROO) el mismo mundo en todos los PC de la sala
+        Random.InitState(semilla);         // y los objetos puestos "al azar" también caen igual
 
         terreno = new GameObject("Terreno").AddComponent<Terreno>();
         terreno.transform.SetParent(raiz, false);
@@ -166,33 +153,17 @@ public partial class Mundo : MonoBehaviour
         CrearCalicraft();
         meta = MEMORIAS.Length;
 
-        Lava(LAVA);
-        // Sin enemigos de día: los malos pensamientos solo aparecen de noche (los crea Monstruos.cs).
-        Corazon(P(-4, 1, 4));
-        for (int i = 0; i < 3; i++) Corazon(LugarAlAzar());
-        var mons = raiz.gameObject.AddComponent<Monstruos>();
-        mons.mundo = this;
-        mons.terreno = terreno;
+        Lava(LAVA);   // se ve, pero en la versión de la sala no quita vidas
+        // (VIROO) modo cooperativo: sin malos pensamientos ni corazones (en la sala nadie puede correr)
 
-        CrearJugador();
+        CrearJugadorViroo();
 
         AplicarDificultad();
-        if (yaEmpezo)
-        {
-            pantalla = Pantalla.Ninguna;
-            jugando = true;
-            VistaDeInicio(false);
-            Pausar(false);
-            tAyuda = 10;
-        }
-        else
-        {
-            pantalla = Pantalla.Portada;
-            jugando = false;
-            VistaDeInicio(false);
-            Pausar(true);
-        }
+        pantalla = Pantalla.Ninguna;       // sin portada ni elección de personaje: se entra jugando
+        jugando = true;
+        yaEmpezo = true;
         cargando = false;
+        PrepararViroo();
     }
 
     // =====================================================================
@@ -200,113 +171,10 @@ public partial class Mundo : MonoBehaviour
     {
         float dt = Time.deltaTime;
         foreach (var t in giran) if (t) t.Rotate(0, 2f * Mathf.Rad2Deg * dt, 0, Space.World);
-        if (golpeAlpha > 0) golpeAlpha = Mathf.Max(0, golpeAlpha - dt * 1.25f);
         if (cargando || jugador == null) return;
-
-        if (termino)
-        {
-            tFin += dt;
-            if (Input.GetKeyDown(KeyCode.R)) Reiniciar();
-            return;
-        }
-        if (pantalla == Pantalla.Mision) tMision += dt;
-        if (pantalla == Pantalla.Eleccion) modelos.Rotate(0, 1.2f * Mathf.Rad2Deg * dt, 0);
-        if (!jugando) return;
-
-        ciclo.velocidad = Input.GetKey(KeyCode.N) ? 30f : 1f;
-        if (invencible > 0) invencible -= dt;
         if (tAviso > 0) tAviso -= dt;
-        if (tAyuda > 0) tAyuda -= dt;
-        if (tLanzar > 0) tLanzar -= dt;
-        ActualizarCalicraft(dt);
-        if (termino) return;
-        if (jugador.transform.position.y < Terreno.Y_MIN - 10) { PerderVida(); if (termino) return; }
-
-        if (Input.GetKeyDown(KeyCode.G)) GirarPersonaje();
-        if (Input.GetKeyDown(KeyCode.H)) { ayuda = !(ayuda || tAyuda > 0); tAyuda = 0; }
-        if (Input.GetKeyDown(KeyCode.M)) mapaGrande = !mapaGrande;
-        if (Input.GetKeyDown(KeyCode.Escape)) Pausar(Cursor.lockState == CursorLockMode.Locked);
-
-        for (int k = 0; k < tipos.Length; k++)
-            if (Input.GetKeyDown(KeyCode.Alpha1 + k)) tipoSel = k;
-        float rueda = Input.mouseScrollDelta.y;
-        if (rueda != 0) tipoSel = (tipoSel + (rueda > 0 ? -1 : 1) + tipos.Length) % tipos.Length;
-
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
-            yaw += Input.GetAxisRaw("Mouse X") * SENS;
-            pitch = Mathf.Clamp(pitch - Input.GetAxisRaw("Mouse Y") * SENS, -23, 69);
-            if (Input.GetMouseButtonDown(0)) Romper();
-            if (Input.GetMouseButtonDown(1)) Poner();
-            if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(2)) Lanzar();
-        }
-        else if (Input.GetMouseButtonDown(0) && !MouseEnPanel()) Pausar(false);   // clic en el panel = abrir enlace
-        jugador.transform.rotation = Quaternion.Euler(0, yaw, 0);
-        cam.transform.localRotation = Quaternion.Euler(pitch, 0, 0);
-
-        // caminar, saltar y nadar (personaje.gd)
-        float h = (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) ? 1 : 0)
-                - (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) ? 1 : 0);
-        float v = (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1 : 0)
-                - (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1 : 0);
-        var tr = jugador.transform;
-        bool enAgua = terreno.EsAgua(tr.position + Vector3.up * 0.6f);
-        Vector3 mov = (tr.forward * v + tr.right * h).normalized * (enAgua ? VEL * 0.55f : VEL);
-        if (enAgua)
-        {
-            velY = Mathf.Max(velY - GRAVEDAD * 0.25f * dt, -2f);
-            if (Input.GetKey(KeyCode.Space)) velY = 2.5f;
-        }
-        else if (cc.isGrounded)
-        {
-            velY = -1;
-            if (Input.GetKeyDown(KeyCode.Space)) velY = SALTO;
-        }
-        else velY -= GRAVEDAD * dt;
-        mov.y = velY;
-        cc.Move(mov * dt);
-        ColocarCamara();
-
-        // gemas, corazones y lava (las Area3D de Godot)
-        for (int i = gemasObj.Count - 1; i >= 0; i--)
-            if (Toca(gemasObj[i].position, 0.7f))
-            {
-                Efectos.Destello(gemasObj[i].position, new Color(0.4f, 0.95f, 1f));
-                Destroy(gemasObj[i].gameObject);
-                gemasObj.RemoveAt(i);
-                Recoger();
-                if (termino) return;
-            }
-        for (int i = corazones.Count - 1; i >= 0; i--)
-            if (Toca(corazones[i].position, 0.5f))
-            {
-                Efectos.Destello(corazones[i].position, new Color(1, 0.3f, 0.5f));
-                Destroy(corazones[i].gameObject);
-                corazones.RemoveAt(i);
-                GanarVida();
-            }
-        var p = tr.position;
-        if (Mathf.Abs(p.x - LAVA.x) < 2.4f && Mathf.Abs(p.z - LAVA.z) < 2.4f && p.y < 1f) PerderVida();
-    }
-
-    // la cámara va detrás, pero si hay una montaña o pared en medio se acerca (no la atraviesa)
-    void ColocarCamara()
-    {
-        var t = jugador.transform;
-        Vector3 cabeza = t.position + Vector3.up * 1.6f;
-        Vector3 deseada = t.TransformPoint(CAM_DETRAS);
-        Vector3 dir = deseada - cabeza;
-        float dist = dir.magnitude;
-        dir /= dist;
-        if (Physics.SphereCast(cabeza, 0.25f, dir, out var hit, dist, SinJugador, QueryTriggerInteraction.Ignore))
-            cam.transform.position = cabeza + dir * Mathf.Max(0.5f, hit.distance - 0.1f);
-        else
-            cam.transform.localPosition = CAM_DETRAS;
-        if (sacudida > 0)
-        {
-            cam.transform.position += Random.insideUnitSphere * 0.3f * sacudida;
-            sacudida -= Time.deltaTime * 2f;
-        }
+        ActualizarCalicraft(dt);   // tocar los cubos de memoria caminando
+        ActualizarViroo(dt);       // mandos (o teclado), red, textos en el mundo (Mundo.Viroo.cs)
     }
 
     // la cápsula del jugador (radio 0.4) toca una esfera de radio r en 'pos'
@@ -317,71 +185,8 @@ public partial class Mundo : MonoBehaviour
         return Vector3.Distance(pos, new Vector3(c.x, y, c.z)) < r + 0.4f;
     }
 
-    // ---------- poner / romper / lanzar ----------
+    // celda de bloque que contiene el punto p
     static Vector3Int Celda(Vector3 p) => new Vector3Int(Mathf.RoundToInt(p.x), Mathf.FloorToInt(p.y), Mathf.RoundToInt(p.z));
-
-    bool Apuntar(out RaycastHit hit) =>
-        Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, ALCANCE, SinJugador, QueryTriggerInteraction.Ignore);
-
-    void Poner()
-    {
-        if (!Apuntar(out var hit)) return;
-        var c = Celda(hit.point + hit.normal * 0.5f);
-        var centro = new Vector3(c.x, c.y + 0.5f, c.z);
-        if (Vector3.Distance(centro, PosJugador + Vector3.up * 0.9f) < 1.2f) return;   // no encima de ti
-        foreach (var e in enemigos)
-            if (e && Vector3.Distance(centro, e.transform.position + Vector3.up * 0.9f) < 1.1f) return;
-        var t = tipos[tipoSel];
-        if (t.tnt) CrearTnt(centro);
-        else if (t.antorcha) PonerAntorcha(new Vector3(c.x, c.y, c.z));
-        else if (terreno.Get(c.x, c.y, c.z) == B.Aire && terreno.Set(c.x, c.y, c.z, t.bloque)) RevisarHueco(c);
-    }
-
-    void Romper()
-    {
-        if (!Apuntar(out var hit)) return;
-        var tnt = hit.collider.GetComponentInParent<Tnt>();
-        if (tnt) { tnt.Encender(); return; }
-        var antorcha = hit.collider.GetComponentInParent<Antorcha>();
-        if (antorcha) { Destroy(antorcha.gameObject); return; }
-        if (hit.collider.GetComponent<TrozoTerreno>() == null) return;   // la casa y los árboles de Godot no se rompen
-
-        var c = Celda(hit.point - hit.normal * 0.5f);
-        var b = terreno.Get(c.x, c.y, c.z);
-        if (b == B.Aire || !terreno.Set(c.x, c.y, c.z, B.Aire)) return;
-        Efectos.Escombros(new Vector3(c.x, c.y + 0.5f, c.z), ColorDe(b));
-        int p = b switch { B.Carbon => 2, B.Hierro => 4, B.Oro => 8, B.Diamante => 15, _ => 0 };
-        if (p > 0)
-        {
-            puntos += p;
-            Sonar("gema");
-            string nombre = b switch { B.Carbon => "carbon", B.Hierro => "hierro", B.Oro => "oro", _ => "diamante" };
-            Aviso($"+{p} {nombre}");
-        }
-    }
-
-    void Lanzar()
-    {
-        if (tLanzar > 0) return;
-        tLanzar = 0.25f;
-        var origen = PosJugador + Vector3.up * 1.4f + jugador.transform.forward * 0.6f;
-        Vector3 objetivo = Physics.Raycast(cam.transform.position, cam.transform.forward, out var h, 80f, SinJugador, QueryTriggerInteraction.Ignore)
-            ? h.point : cam.transform.position + cam.transform.forward * 80f;
-        var dir = (objetivo - origen).normalized;
-        var bola = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        bola.name = "BolaDeNieve";
-        bola.transform.SetParent(raiz, false);
-        bola.transform.position = origen;
-        bola.transform.localScale = Vector3.one * 0.3f;
-        bola.GetComponent<Renderer>().sharedMaterial = MatColor(new Color(0.92f, 0.96f, 1f));
-        var rb = bola.AddComponent<Rigidbody>();
-        rb.mass = 0.2f;
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        rb.linearVelocity = dir * 26f + Vector3.up;
-        Physics.IgnoreCollision(bola.GetComponent<Collider>(), cc);
-        bola.AddComponent<Proyectil>();
-        Sonar("clic");
-    }
 
     // la explosión de la TNT
     public void Explosion(Vector3 pos, float radio)
@@ -432,11 +237,7 @@ public partial class Mundo : MonoBehaviour
         invencible = 1.5f;
         Sonar("golpe");
         golpeAlpha = 0.5f;          // pantallazo rojo
-        if (vidas <= 0) { Terminar("GAME OVER"); return; }
-        cc.enabled = false;         // reaparecer en el inicio
-        jugador.transform.position = inicio;
-        cc.enabled = true;
-        velY = 0;
+        // (VIROO) modo cooperativo: no hay game over ni se reaparece (el jugador lo mueve VIROO)
     }
 
     void GanarVida() { vidas++; Sonar("gema"); }
@@ -460,8 +261,7 @@ public partial class Mundo : MonoBehaviour
 
     void Terminar(string texto)
     {
-        termino = true;
-        Pausar(true);
+        termino = true;              // (VIROO) el mundo sigue abierto; el HUD muestra el título
         Sonar(texto == "GAME OVER" ? "gameover" : "ganar");
         tituloFin = texto;
         tFin = 0;
@@ -486,7 +286,6 @@ public partial class Mundo : MonoBehaviour
     // jugar otra vez: un mundo nuevo (otra semilla)
     void Reiniciar()
     {
-        cam.transform.SetParent(null, false);
         Destroy(raiz.gameObject);
         jugador = null;
         Construir();
@@ -505,6 +304,7 @@ public partial class Mundo : MonoBehaviour
 
     public void Sonar(string nombre)
     {
+        if (silencio) return;   // reconstruyendo la sesión de quien entra tarde
         if (sonidos.TryGetValue(nombre, out var clip)) audioSrc.PlayOneShot(clip);
     }
 }

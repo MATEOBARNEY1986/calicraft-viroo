@@ -397,7 +397,7 @@ public class Cartel : MonoBehaviour
 {
     void LateUpdate()
     {
-        var c = Camera.main;
+        var c = Mundo.Instancia != null && Mundo.Instancia.Camara != null ? Mundo.Instancia.Camara : Camera.main;   // (VIROO) la del rig
         if (c) transform.rotation = Quaternion.LookRotation(transform.position - c.transform.position);
     }
 }

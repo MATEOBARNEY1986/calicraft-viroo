@@ -186,7 +186,7 @@ public partial class Mundo
                 casa.lista = true;
                 puntos += 100;
                 Sonar("ganar");
-                MostrarConsigna(new Memoria("casa", "Casa reconstruida", Cat.Patrimonio, 0, 0, CONSIGNA_CASA));
+                MostrarConsigna(new Memoria("casa", "Casa reconstruida", Cat.Patrimonio, 0, 0, CONSIGNA_CASA), casa.centro + Vector3.up * 4);
                 RevisarVictoria();
             }
             else Aviso($"Faltan {casa.huecos.Count} huecos en esta casa");
@@ -203,24 +203,38 @@ public partial class Mundo
             var c = cubos[i];
             if (c.obj == null) continue;
             c.obj.position = c.lugar + Vector3.up * (Mathf.Sin(Time.time * 2f + i) * 0.15f);
-            if (!Toca(c.obj.position, 0.8f)) continue;
-            Efectos.Destello(c.obj.position, ColorCat(c.m.cat));
-            giran.Remove(c.obj);
-            Destroy(c.obj.gameObject);
-            c.obj = null;
-            recogidos.Add(c);
-            puntos += 50;
-            Sonar("gema");
-            MostrarConsigna(c.m);
-            RevisarVictoria();
-            if (termino) return;
+            if (Toca(c.obj.position, 0.8f)) PedirMemoria(i);   // (VIROO) se pide por la red; vuelve en RecogerMemoria
         }
     }
 
-    void MostrarConsigna(Memoria m)
+    // (VIROO) llega por la red a todos los jugadores: la memoria es del grupo
+    void RecogerMemoria(int i)
     {
+        if (i < 0 || i >= cubos.Count) return;
+        var c = cubos[i];
+        if (c.obj == null) return;              // ya la había encontrado otro
+        if (!silencio) Efectos.Destello(c.obj.position, ColorCat(c.m.cat));
+        giran.Remove(c.obj);
+        Destroy(c.obj.gameObject);
+        c.obj = null;
+        recogidos.Add(c);
+        puntos += 50;
+        Sonar("gema");
+        MostrarConsigna(c.m, c.lugar);
+        if (!silencio) Aviso("Encontraron: " + c.m.nombre);
+        RevisarVictoria();
+    }
+
+    void MostrarConsigna(Memoria m, Vector3 donde)
+    {
+        if (silencio) return;
         consignaVista = m;
         tConsigna = m.enlaces != null && m.enlaces.Length > 0 ? 25f : 14f;
+        // (VIROO) en las gafas no hay botones de enlace: se nombran los videos para buscarlos en clase
+        string texto = m.consigna;
+        if (m.enlaces != null && m.enlaces.Length > 0)
+            texto += "\n\n<color=#F06AA8>Para ver después: " + string.Join(" · ", System.Array.ConvertAll(m.enlaces, e => e.texto)) + "</color>";
+        MostrarPanel(m.nombre, texto, ColorCat(m.cat), donde);
     }
 
     void RevisarVictoria()

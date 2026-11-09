@@ -1,0 +1,342 @@
+ENSAMBLADOS: Viroo, Viroo.Arena, Viroo.Arena.Native, Viroo.Arena.NMerso, Viroo.Communication, Viroo.Communication.Core, Viroo.Communication.Protocols.SignalR, Viroo.Communication.SceneLoader.Unity, Viroo.Communication.Serialization.Json, Viroo.Communication.Unity, Viroo.Content.Applications, Viroo.Content.Encryption, Viroo.Content.Encryption.Applications, Viroo.Content.FileUploader, Viroo.Editor, Viroo.Editor.Unity, Viroo.Interactions, Viroo.Interactions.Editor, Viroo.Interactions.Editor.Unity, Viroo.Interactions.Unity, Viroo.Library, Viroo.Library.Applications, Viroo.Library.Content, Viroo.Library.Core, Viroo.Library.Identity, Viroo.Library.Identity.Core, Viroo.Library.Serialization, Viroo.Library.Sessions.Core, Viroo.Library.SourceGenerators_Unity, Viroo.Metadata, Viroo.Metadata.Applications, Viroo.Metadata.Scenes, Viroo.SceneLoader, Viroo.SceneLoader.ApplicationPublisher, Viroo.SceneLoader.ApplicationPublisher.Editor, Viroo.SceneLoader.ApplicationPublisher.Editor.Unity, Viroo.SceneLoader.Bootstrap.Mock, Viroo.SceneLoader.Bootstrap.Mock.Editor, Viroo.SceneLoader.Bootstrap.Mock.Editor.Unity, Viroo.SceneLoader.Bootstrap.Mock.Unity, Viroo.SceneLoader.Editor, Viroo.SceneLoader.Editor.Unity, Viroo.SceneLoader.SceneContext, Viroo.SceneLoader.SceneContext.Editor, Viroo.SceneLoader.SceneContext.Editor.Unity, Viroo.SceneLoader.SceneContext.Unity, Viroo.SceneLoader.ScenePublisher, Viroo.SceneLoader.ScenePublisher.Editor, Viroo.SceneLoader.ScenePublisher.Editor.Unity, Viroo.SceneLoader.Unity, Viroo.Sessions.Unity, Viroo.Studio, Viroo.Studio.Editor, Viroo.Studio.Editor.Unity, Viroo.Studio.Unity, Viroo.Tracking.NMerso, Viroo.Tracking.NMerso.Editor, Viroo.Tracking.NMerso.Unity, Viroo.Unity, Viroo.VoiceCommunication.Vivox, Viroo.VoiceCommunication.Vivox.Editor, Viroo.VoiceCommunication.Vivox.Unity, Virtualware.Bootstrap, Virtualware.Bootstrap.Editor, Virtualware.Bootstrap.Samples, Virtualware.Cache, Virtualware.Configuration, Virtualware.Configuration.Json, Virtualware.DependencyInjection, Virtualware.DependencyInjection.MultiScene, Virtualware.Download, Virtualware.Download.Unity, Virtualware.Extensions, Virtualware.Extensions.Unity, Virtualware.Files, Virtualware.Hosting, Virtualware.Inspectors, Virtualware.Inspectors.Editor, Virtualware.Localization, Virtualware.Localization.Default, Virtualware.Localization.Default.Editor, Virtualware.Localization.Editor, Virtualware.Localization.Resx, Virtualware.Localization.Resx.Editor, Virtualware.Localization.Samples, Virtualware.Localization.TextMeshPro, Virtualware.Logging, Virtualware.Logging.iOS, Virtualware.Logging.Samples, Virtualware.Networking, Virtualware.Networking.Editor, Virtualware.Networking.Samples, Virtualware.Pooling, Virtualware.PropertyDrawers, Virtualware.PropertyDrawers.Editor, Virtualware.Resources, Virtualware.Resources.Editor, Virtualware.Rest, Virtualware.Rest.Net, Virtualware.ScriptExecutionOrder, Virtualware.ScriptExecutionOrder.Editor, Virtualware.Serialization, Virtualware.Serialization.Json, Virtualware.Startup, Virtualware.Tickable, Virtualware.Time, Virtualware.Time.Samples, Virtualware.Utilities, Virtualware.Utilities.Editor, Virtualware.Utilities.Samples
+
+===== Viroo.SceneLoader.SceneContext.PlayerStart  [Viroo.SceneLoader.SceneContext.Unity]  base: Viroo.SceneLoader.SceneContext.InternalPlayerStart
+  metodo protected Void OnDrawGizmos()
+
+===== Viroo.SceneLoader.SceneContext.SceneConfiguration  [Viroo.SceneLoader.SceneContext.Unity]  base: Viroo.SceneLoader.SceneContext.InternalSceneConfiguration
+  metodo protected virtual Void Initialize()
+  metodo private Void InitializePostProcessCamera()
+  metodo protected Void TogglePreviewCameraVisibility()
+
+===== Virtualware.Networking.Client.Components.NetworkBehaviour  [Virtualware.Networking]  base: UnityEngine.MonoBehaviour
+  campo private String behaviourId
+  campo private PersistenceType persistType
+  campo private Int32 <IntId>k__BackingField
+  campo private NetworkObject <NetworkObject>k__BackingField
+  campo private Boolean <ReceivingInitState>k__BackingField
+  campo private Boolean injectionQueued
+  campo private Boolean <InjectionCompleted>k__BackingField
+  campo private IBehavioursInitializer behavioursInitializer
+  campo private INetworkManager networkManager
+  campo private ICurrentConnectionProvider currentConnectionProvider
+  campo private IMessageSerializationProvider messageSerializationProvider
+  campo private GuidToIntTranslation guidToIntTranslation
+  campo private NetworkElementsRegistry networkElementsRegistry
+  campo private ClientMessageHandlerDispatcher clientMessageHandlerDispatcher
+  campo private IBehaviourMessageHandlerService behaviourMessageHandlerService
+  campo private ILogger`1 logger
+  prop String BehaviourId
+  prop PersistenceType PersistenceType
+  prop Int32 IntId
+  prop NetworkObject NetworkObject
+  prop Boolean HasAuthority
+  prop IClientConnection Connection
+  prop Boolean ReceivingInitState
+  prop Boolean InjectionCompleted
+  metodo internal Void Inject(IBehavioursInitializer behavioursInitializer, INetworkManager networkManager, ICurrentConnectionProvider currentConnectionProvider, IMessageSerializationProvider messageSerializationProvider, GuidToIntTranslation guidToIntTranslation, NetworkElementsRegistry networkElementsRegistry, ClientMessageHandlerDispatcher clientMessageHandlerDispatcher, ILogger`1 logger, IBehaviourMessageHandlerService behaviourMessageHandlerService, NetworkPlayerEventsProxy networkPlayerEventsProxy)
+  metodo protected virtual Void Awake()
+  metodo protected virtual Void OnDestroy()
+  metodo protected virtual Void Initialize()
+  metodo private Void QueueInjection()
+  metodo private Void OnDisconnected(Object sender, EventArgs e)
+  metodo private Void OnReconnecting(Object sender, EventArgs e)
+  metodo private Void Deinitialize()
+  metodo private Void NetworkPlayerEventsProxy_OnLocalPlayerDisconnected(Object sender, EventArgs e)
+  metodo public Task Register(Int32 behaviourIntId, Boolean hasBeenPreviouslyRegistered)
+  metodo public Void SetCurrentState(IEnumerable`1 messages)
+  metodo private Void NetworkManager_OnInitialized(Object sender, EventArgs e)
+  metodo protected virtual Void RegisterMessageCallbacks()
+  metodo protected virtual Void UnregisterMessageCallbacks()
+  metodo protected virtual Void OnBehaviourRegistered()
+  metodo protected virtual Void OnBehaviourInitializationStarted()
+  metodo protected virtual Void OnBehaviourInitializationCompleted()
+  metodo protected Void RegisterMessageCallback(Action`1 callback)
+  metodo protected Void UnregisterMessageCallback(Action`1 callback)
+  metodo public virtual Void Handle(Message message)
+  metodo private Boolean <Register>b__47_0()
+
+===== Virtualware.Networking.Client.Variables.NetworkVariable`1  [Virtualware.Networking]  base: System.Object
+  campo private EventHandler`1 onInitialized
+  campo private EventHandler`1 OnValueChanged
+  campo private EventHandler`1 OnVariableRemoved
+  campo private String <Identifier>k__BackingField
+  campo private NetworkVariableSynchronizer synchronizer
+  campo private T defaultValue
+  campo private T value
+  campo private Boolean isDisposed
+  campo private Boolean <Initialized>k__BackingField
+  campo private Boolean restoring
+  prop String Identifier
+  prop T Value
+  prop Boolean Initialized
+  metodo private Void OnSynchronizerInitialized(Object sender, EventArgs e)
+  metodo private Void OnSynchronizerDeinitialized(Object sender, EventArgs e)
+  metodo private Void OnUpdated(Object sender, NetworkVariableUpdatedEventArgs e)
+  metodo private Void OnRemoved(Object sender, NetworkVariableRemovedEventArgs args)
+  metodo public Task`1 Exists()
+  metodo public Void Remove()
+  metodo public virtual Void Dispose()
+  metodo protected virtual Void Dispose(Boolean disposing)
+  metodo private virtual Task Virtualware.Networking.IScenePersistenceAwareElement.RemovePersistence(SceneDefinition sceneDefinition)
+  metodo private virtual Task Virtualware.Networking.IScenePersistenceAwareElement.RestorePersistence(SceneDefinition sceneDefinition)
+
+===== Viroo.Teleport.InternalTeleportPoint  [Viroo]  base: UnityEngine.MonoBehaviour
+  campo private Int32 index
+  campo private String identifier
+  campo private String label
+  campo private Boolean selectableFromMenu
+  campo private Boolean applyRotation
+  campo private Boolean <IsEnabled>k__BackingField
+  campo private ITeleportService teleportService
+  campo private INetworkTeleportService networkTeleportService
+  prop Int32 Index
+  prop String Identifier
+  prop String Label
+  prop Boolean SelectableFromMenu
+  prop Boolean ApplyRotation
+  prop Boolean IsEnabled
+  prop Vector3 Position
+  prop Quaternion Rotation
+  metodo protected Void Inject(ITeleportService teleportService, INetworkTeleportService networkTeleportService)
+  metodo protected Void Awake()
+  metodo protected Void OnDestroy()
+  metodo public virtual Task Teleport()
+
+===== Viroo.Teleport.TeleportModes  [Viroo]  base: System.Enum
+  enum: Player, RoomCenter
+
+===== Viroo.Networking.IPlayer  [Viroo]  base: 
+  prop Boolean IsInitialized
+  prop IPlayerAvatar PlayerAvatar
+  prop IPlayerData PlayerData
+  prop IPlayerTransform PlayerTransform
+
+===== Viroo.Interactions.XRInteractionToolkit.Locomotion.IVirooGravityProvider  [Viroo]  base: 
+  prop Boolean IsGravityEnabled
+  metodo public virtual abstract Void ResetGravity()
+
+===== Viroo.Input.VirooDeviceId  [Viroo]  base: System.Enum
+  enum: LeftController, RightController, HMD
+
+===== Viroo.Input.XR.HmdInput  [Viroo]  base: Viroo.Input.XR.XRTrackedDeviceInput
+  metodo public Boolean UserPresence()
+
+===== Viroo.Input.XR.XRControllerInput  [Viroo]  base: Viroo.Input.XR.XRTrackedDeviceInput
+  campo private EventHandler OnTriggerPressed
+  campo private EventHandler OnGripPressed
+  campo private EventHandler OnPrimaryButtonPressed
+  campo private EventHandler OnSecondaryButtonPressed
+  campo private EventHandler OnPrimary2DAxisPressed
+  campo private EventHandler OnTriggerCanceled
+  campo private EventHandler OnGripCanceled
+  campo private EventHandler OnPrimaryButtonCanceled
+  campo private EventHandler OnSecondaryButtonCanceled
+  campo private EventHandler OnPrimary2DAxisCanceled
+  campo private InputActionMap inputActionMap
+  metodo public Single Trigger()
+  metodo public Single Grip()
+  metodo public Boolean PrimaryButton()
+  metodo public Single PrimaryButtonValue()
+  metodo public Boolean SecondaryButton()
+  metodo public Single SecondaryButtonValue()
+  metodo public Boolean Primary2DAxisClick()
+  metodo public Vector2 Primary2DAxis()
+  metodo private Void TriggerActionPerformed(CallbackContext obj)
+  metodo private Void GripActionPerformed(CallbackContext obj)
+  metodo private Void PrimaryButtonActionPerformed(CallbackContext obj)
+  metodo private Void SecondaryButtonActionPerformed(CallbackContext obj)
+  metodo private Void Primary2DAxisClickActionPerformed(CallbackContext obj)
+  metodo private Void TriggerActionCanceled(CallbackContext context)
+  metodo private Void GripActionCanceled(CallbackContext context)
+  metodo private Void PrimaryButtonActionCanceled(CallbackContext context)
+  metodo private Void SecondaryButtonActionCanceled(CallbackContext context)
+  metodo private Void Primary2DAxisClickActionCanceled(CallbackContext context)
+  metodo public Void SendImpulse(Single amplitude, Single duration)
+  metodo public virtual Void Dispose()
+  metodo protected virtual Void Dispose(Boolean disposing)
+
+===== Viroo.Cameras.IVirooCamera  [Viroo]  base: 
+  prop String Id
+  prop Camera OriginalCamera
+  prop IEnumerable`1 Cameras
+  metodo public virtual abstract Void AddCamera(Camera camera)
+  metodo public virtual abstract Void RemoveCamera(Camera camera)
+  metodo public virtual abstract Void RemoveCameras()
+  metodo public virtual abstract Void SetSkyboxEnabled(Boolean enabled)
+
+===== Viroo.Api.VirooApi  [Viroo]  base: System.Object
+  campo private VirooApi s_instance
+  campo private EventHandler onInitialized
+  campo private UnityBootstrap unityBootstrap
+  campo private Boolean <IsInitialized>k__BackingField
+  prop VirooApi Instance
+  prop Boolean IsInitialized
+  metodo internal Task Initialize(CancellationToken cancellationToken)
+  metodo private virtual T Viroo.Api.IVirooApi.GetModule()
+  metodo internal T GetModule()
+  metodo private virtual Void System.IDisposable.Dispose()
+  metodo protected virtual Void Dispose(Boolean disposing)
+  metodo private Boolean <Initialize>b__15_0()
+
+===== Viroo.Api.Teleport.IVirooTeleportApi  [Viroo]  base: 
+  prop Boolean IsEnabled
+  metodo public virtual abstract Task FreeTeleport(String arenaId, Vector3 destinationPosition, TeleportModes teleportMode)
+  metodo public virtual abstract Task FreeTeleport(Vector3 destinationPosition, TeleportModes teleportMode)
+  metodo public virtual abstract Task TeleportAll(Vector3 destinationPosition)
+  metodo public virtual abstract Task PointTeleport(String teleportPointId, TeleportModes teleportMode)
+  metodo public virtual abstract Task PointTeleport(String arenaId, String teleportPointId, TeleportModes teleportMode)
+  metodo public virtual abstract ITeleportPoint GetPoint(String teleportPointId)
+  metodo public virtual abstract IEnumerable`1 GetRegisteredPoints()
+  metodo public virtual abstract Void SetEnabled(Object sourceContext, Boolean isEnabled)
+  metodo public virtual abstract Void RemoveSource(Object sourceContext)
+
+===== Viroo.Api.Players.IVirooPlayersApi  [Viroo]  base: 
+  metodo public virtual abstract IPlayer Get(String clientId)
+  metodo public virtual abstract IEnumerable`1 GetAll()
+  metodo public virtual abstract IPlayer GetLocalPlayer()
+  metodo public virtual abstract IEnumerable`1 GetPlayersInArena(String arenaId)
+  metodo public virtual abstract IEnumerable`1 GetPlayersInLocalArena()
+
+===== Viroo.Api.Networking.IVirooNetworkingApi  [Viroo]  base: 
+  prop Boolean IsConnecting
+  prop Boolean IsConnected
+  prop Boolean IsDisconnecting
+  prop Boolean IsInitialized
+  prop Boolean IsReconnecting
+  prop IConditionalRunner ConditionalRunner
+  prop ISynchronizedRunner SynchronizedRunner
+  metodo public virtual abstract Task`1 CreateDynamicObject(String resourceIdentifier, Vector3 position, Quaternion rotation, Boolean requestAuthority, Boolean isPersistent, String objectId)
+  metodo public virtual abstract Task`1 DestroyObject(INetworkObject networkObject)
+  metodo public virtual abstract Task`1 DestroyObjects(IEnumerable`1 networkObjects)
+  metodo public virtual abstract Task`1 RequestObjectAuthority(INetworkObject networkObject)
+  metodo public virtual abstract Task`1 RequestObjectsAuthority(IEnumerable`1 networkObjects)
+  metodo public virtual abstract NetworkVariable`1 CreateNetworkVariable(String variableIdentifier, T defaultValue, Boolean resetValueOnSceneChange)
+  metodo public virtual abstract Task`1 SetSessionProperty(String propertyKey, T value)
+  metodo public virtual abstract Task`1 GetSessionProperty(String propertyKey)
+  metodo public virtual abstract Task`1 ClearSessionProperty(String propertyKey)
+
+===== Viroo.Api.Locomotion.IVirooLocomotionApi  [Viroo]  base: 
+  prop CharacterController CharacterController
+  prop ICrouchPlayerInput Crouch
+  prop IFlyPlayerInput Fly
+  prop IVirooGravityProvider Gravity
+  prop Boolean IsEnabled
+  prop Single Speed
+  prop IEnumerable`1 AllProviders
+  metodo public virtual abstract Void Add(ILocomotionProviderWrapper provider)
+  metodo public virtual abstract IEnumerable`1 GetLocomotionProviders(LocomotionProviderTypes locomotionProviderTypes)
+  metodo public virtual abstract ILocomotionProviderWrapper GetLocomotionProvider(LocomotionProviderTypes locomotionProviderTypes, LocomotionTypes locomotionType)
+  metodo public virtual abstract ILocomotionProviderWrapper GetLocomotionProvider(String locomotionProviderType, LocomotionTypes locomotionType)
+  metodo public virtual abstract Void SetPositionY(Single y)
+  metodo public virtual abstract Void SetPosition(Vector3 position)
+  metodo public virtual abstract Void SetRotation(Vector3 rotation)
+  metodo public virtual abstract Void SetPlayerCollisionMode(Boolean collide)
+  metodo public virtual abstract Void SetMovementAndRotationEnabled(Object sourceContext, Boolean isEnabled)
+  metodo public virtual abstract Void RemoveSource(Object sourceContext)
+
+===== Viroo.Api.Input.InputDevices  [Viroo]  base: System.Enum
+  enum: HMD, LeftController, RightController
+
+===== Viroo.Api.Input.IVirooInputApi  [Viroo]  base: 
+  prop HmdInput HMD
+  prop InputActionAsset VirooInputActionAsset
+  prop InputActionAsset XrInteractionToolkitInputActionAsset
+  prop XRControllerInput LeftController
+  prop XRControllerInput RightController
+  prop Boolean IsLeftControllerTracked
+  prop Boolean IsRightControllerTracked
+  prop Boolean IsLeftHandTracked
+  prop Boolean IsRightHandTracked
+  metodo public virtual abstract Task AttachObjectToDevice(GameObject gameObject, InputDevices device, Vector3 positionOffset, Vector3 rotationOffset, CancellationToken cancellationToken)
+
+===== Viroo.Api.Context.IVirooContextApi  [Viroo]  base: 
+  prop Boolean IsVr
+  prop IVirooCamera VirooCamera
+  prop GameObject LeftHand
+  prop GameObject RightHand
+  prop GameObject LeftHandAttachPoint
+  prop GameObject RightHandAttachPoint
+
+===== Viroo.SceneLoader.Scenes.SceneConfiguration  [Viroo.SceneLoader]  base: System.Object
+  campo private IDownloadRequestFactory downloadRequestFactory
+  campo private ILogger logger
+  campo private SceneMetadata <Metadata>k__BackingField
+  campo private Boolean <IsDefault>k__BackingField
+  campo private String thumbnailPath
+  campo private Texture2D <Thumbnail>k__BackingField
+  prop SceneMetadata Metadata
+  prop Boolean IsDefault
+  prop Texture2D Thumbnail
+  metodo internal Task DownloadThumbnail(CancellationToken cancellationToken)
+
+===== Viroo.SceneLoader.Api.Scenes.IVirooScenesApi  [Viroo.SceneLoader]  base: 
+  prop SceneDefinition CurrentActiveScene
+  prop IEnumerable`1 LoadedScenes
+  metodo public virtual abstract Task LoadScene(String sceneIdentifier, CancellationToken cancellationToken)
+
+===== Viroo.Interactions.ActionPersistenceType  [Viroo.Interactions]  base: System.Enum
+  enum: None, Last, All
+
+===== Viroo.Interactions.BroadcastObjectAction  [Viroo.Interactions]  base: Viroo.Interactions.ObjectAction
+  campo private EventHandler`1 OnActionIdChanged
+  campo private ActionPersistenceType persistenceType
+  campo protected IServiceProvider serviceProvider
+  campo private ActionBroadcaster actionBroadcaster
+  campo private IBroadcastObjectActionProviderService broadcastObjectActionProviderService
+  campo protected ILogger`1 logger
+  campo protected NetworkVariableSynchronizer variableSynchronizer
+  campo protected IScenePersistenceAwareElementRegistry persistenceAwareElementRegistry
+  campo private State <InitializationState>k__BackingField
+  prop ActionPersistenceType PersistenceType
+  prop State InitializationState
+  prop Boolean IsInitialized
+  metodo protected Void Inject(IServiceProvider serviceProvider, ActionBroadcaster actionBroadcaster, IBroadcastObjectActionProviderService broadcastObjectActionProviderService, ILogger`1 logger, NetworkVariableSynchronizer variableSynchronizer, IScenePersistenceAwareElementRegistry persistenceAwareElementRegistry)
+  metodo protected virtual Void Awake()
+  metodo protected virtual Void OnDestroy()
+  metodo protected virtual Void OnInject()
+  metodo public Void SetId(String id)
+  metodo private Task InternalSetId(String id)
+  metodo private Task ChangeId(String newId)
+  metodo private Void NotifyIdChanged()
+  metodo protected virtual Void InstantiateNetworkVariables()
+  metodo protected virtual Void RegisterNetworkVariables()
+  metodo protected virtual Task ClearNetworkVariables()
+  metodo protected virtual Void UnregisterNetworkVariables()
+  metodo protected virtual Void DisposeNetworkVariables()
+  metodo public virtual Void RestoreState(String data)
+  metodo public virtual Void Execute(String data)
+  metodo protected Void RestoreEvent(UnityEvent unityEvent)
+  metodo private Boolean <InternalSetId>b__25_0()
+  metodo private Boolean <ChangeId>b__26_0()
+
+===== Viroo.Interactions.ObjectAction  [Viroo.Interactions]  base: UnityEngine.MonoBehaviour
+  campo private String id
+  campo private String textId
+  campo private Boolean startsEnabled
+  campo private Boolean <IsEnabled>k__BackingField
+  campo private EventHandler OnActionExecuted
+  prop String Id
+  prop String TextId
+  prop Boolean StartsEnabled
+  prop Boolean IsEnabled
+  metodo protected virtual Void Awake()
+  metodo protected virtual Void Reset()
+  metodo public virtual Void Execute()
+  metodo public virtual Void Execute(String data)
+  metodo protected virtual abstract Void LocalExecuteImplementation(String data)
+  metodo public Void LocalExecute()
+  metodo public virtual Void LocalExecute(String data)
+  metodo protected Void NotifyExecuted()
+  metodo public virtual String GetData()
+  metodo internal String GenerateRandomId()
+
+===== Métodos de extensión sobre VirooApi
+  Viroo.Api.VirooApiExtensions.Arena() -> Viroo.Api.Arena.IVirooArenaApi
+  Viroo.Api.VirooApiExtensions.Context() -> Viroo.Api.Context.IVirooContextApi
+  Viroo.Api.VirooApiExtensions.Input() -> Viroo.Api.Input.IVirooInputApi
+  Viroo.Api.VirooApiExtensions.Interactions() -> Viroo.Api.Interactions.IVirooInteractionsApi
+  Viroo.Api.VirooApiExtensions.Locomotion() -> Viroo.Api.Locomotion.IVirooLocomotionApi
+  Viroo.Api.VirooApiExtensions.Networking() -> Viroo.Api.Networking.IVirooNetworkingApi
+  Viroo.Api.VirooApiExtensions.Players() -> Viroo.Api.Players.IVirooPlayersApi
+  Viroo.Api.VirooApiExtensions.Teleport() -> Viroo.Api.Teleport.IVirooTeleportApi
+  Viroo.SceneLoader.Api.SceneLoaderApiExtensions.Scenes() -> Viroo.SceneLoader.Api.Scenes.IVirooScenesApi

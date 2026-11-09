@@ -32,8 +32,8 @@ public partial class Mundo
         b.GetComponent<Renderer>().enabled = false;
     }
 
-    Shader ShaderBase() => GraphicsSettings.currentRenderPipeline == null
-        ? Shader.Find("Standard") : Shader.Find("Universal Render Pipeline/Lit");
+    // VIROO usa URP: todos los materiales del mundo salen del Lit de URP
+    Shader ShaderBase() => Shaders.Buscar("Universal Render Pipeline/Lit");
 
     Texture2D Tex(string archivo)
     {
@@ -71,7 +71,19 @@ public partial class Mundo
     void Transparente(Material mat, float alfa)
     {
         var c = mat.color; c.a = alfa; mat.color = c;
-        if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1);   // URP
+        if (mat.HasProperty("_Surface"))                                 // URP (Lit)
+        {
+            mat.SetFloat("_Surface", 1);
+            mat.SetFloat("_Blend", 0);
+            mat.SetOverrideTag("RenderType", "Transparent");
+            mat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            mat.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
+            mat.SetFloat("_DstBlendAlpha", (float)BlendMode.OneMinusSrcAlpha);
+            mat.SetFloat("_ZWrite", 0);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = (int)RenderQueue.Transparent;
+        }
         if (mat.HasProperty("_Mode"))                                    // Standard
         {
             mat.SetFloat("_Mode", 3);

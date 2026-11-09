@@ -5,7 +5,7 @@ using UnityEngine;
 public static class Efectos
 {
     static Material mat;
-    static Material Mat() => mat != null ? mat : (mat = new Material(Shader.Find("Sprites/Default")));
+    static Material Mat() => mat != null ? mat : (mat = new Material(Shaders.Buscar("Sprites/Default")));
 
     static ParticleSystem Nuevo(string nombre, Vector3 pos, Transform padre)
     {
@@ -113,7 +113,7 @@ public static class Efectos
         f.transform.SetParent(gema, false);
         f.transform.localPosition = new Vector3(0, 40, 0);
         f.transform.localScale = new Vector3(0.35f, 80, 0.35f);
-        var m = new Material(Shader.Find("Sprites/Default")) { color = c };
+        var m = new Material(Shaders.Buscar("Sprites/Default")) { color = c };
         f.GetComponent<Renderer>().sharedMaterial = m;
     }
 }

@@ -69,7 +69,7 @@ public class CicloDia : MonoBehaviour
         s.radius = 140;
         s.radiusThickness = 0;
         s.rotation = new Vector3(-90, 0, 0);
-        matEstrellas = new Material(Shader.Find("Sprites/Default"));
+        matEstrellas = new Material(Shaders.Buscar("Sprites/Default"));
         go.GetComponent<ParticleSystemRenderer>().sharedMaterial = matEstrellas;
         estrellas.Play();
         estrellas.Emit(500);

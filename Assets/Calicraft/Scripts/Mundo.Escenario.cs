@@ -12,7 +12,7 @@ public partial class Mundo
         RenderSettings.fogMode = FogMode.Linear;
         RenderSettings.fogStartDistance = 30;
         RenderSettings.fogEndDistance = 120;
-        var sh = Shader.Find("Skybox/Procedural");
+        var sh = Shaders.Buscar("Skybox/Procedural");
         if (sh == null)
         {
             cam.clearFlags = CameraClearFlags.SolidColor;
