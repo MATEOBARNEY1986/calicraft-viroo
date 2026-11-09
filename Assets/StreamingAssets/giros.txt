@@ -1,0 +1,11 @@
+emily=90
+kasi=0
+zombie_walter=90
+cientifico=0
+momia_shelly=0
+inari=270
+leelo=0
+elzing=0
+bombul=0
+snaget=270
+trug=0
