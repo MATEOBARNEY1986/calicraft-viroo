@@ -20,6 +20,7 @@ public partial class Mundo
         public VideoPlayer video;
         public AudioSource audio;
         public TextMeshPro estado;
+        public Transform tela;
         public int pedido = -1;              // el último video que se pidió en esta pantalla
         public List<(string texto, string url)> videos = new List<(string, string)>();
     }
@@ -91,6 +92,7 @@ public partial class Mundo
         tela.transform.localScale = new Vector3(3.2f, 1.8f, 1);
         var matTela = new Material(Shaders.Buscar("Universal Render Pipeline/Unlit")) { color = new Color(0.02f, 0.02f, 0.03f) };
         var rend = tela.GetComponent<Renderer>();
+        p.tela = tela.transform;
         rend.sharedMaterial = matTela;
 
         // patas
@@ -129,6 +131,7 @@ public partial class Mundo
         p.video.prepareCompleted += vp =>
         {
             if (p.pedido < 0) return;           // lo detuvieron mientras cargaba
+            AjustarProporcion(p, vp.width, vp.height);
             vp.Play();
             if (p.estado) p.estado.text = p.videos[p.pedido].texto;
         };
@@ -162,6 +165,16 @@ public partial class Mundo
             t.text = detener ? "Detener" : texto;
             t.color = Color.white;
         }
+    }
+
+    // los videos del canal vienen en 16:9, 4:3 y hasta vertical (Shorts): se encajan sin estirarse
+    // dentro del marco de 3,2 x 1,8 m
+    static void AjustarProporcion(PantallaVideo p, uint ancho, uint alto)
+    {
+        if (p.tela == null || ancho == 0 || alto == 0) return;
+        const float W = 3.2f, H = 1.8f;
+        float prop = (float)ancho / alto;
+        p.tela.localScale = prop >= W / H ? new Vector3(W, W / prop, 1) : new Vector3(H * prop, H, 1);
     }
 
     // el gatillo sobre un botón de pantalla: devuelve true si había uno
