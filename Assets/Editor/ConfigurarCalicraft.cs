@@ -1,5 +1,5 @@
 // Arma (o rearma) la escena VIROO de Calicraft. Se puede correr desde el menú
-// "VIROO/Calicraft/Configurar escena" o sin pantalla:
+// "Calicraft/Configurar escena VIROO" o sin pantalla:
 //   Unity -batchmode -quit -executeMethod ConfigurarCalicraft.Ejecutar
 // Es idempotente: si la escena ya existe la reconstruye desde la plantilla oficial de VIROO Studio.
 using System;
@@ -19,7 +19,7 @@ public static class ConfigurarCalicraft
     const string ESCENA_VIEJA = "Assets/Calicraft/Scenes/Juego.unity";
     const string MATERIALES = "Assets/Calicraft/Resources/ShadersCalicraft";
 
-    [MenuItem("VIROO/Calicraft/Configurar escena")]
+    [MenuItem("Calicraft/Configurar escena VIROO")]
     public static void Ejecutar()
     {
         CrearMateriales();

@@ -28,6 +28,9 @@ public partial class Mundo
     static readonly List<(string datos, bool efectos)> pendientes = new List<(string, bool)>();
     bool silencio;                       // reconstruyendo el estado de la sesión: sin sonidos ni paneles
     bool esVR;
+    bool sinViroo;                       // VIROO no arrancó (p. ej. el editor en Linux): modo de prueba
+    float yawPrueba, pitchPrueba;
+    int puntoPrueba = -1;
     Transform manoIzq, manoDer;
     readonly Dictionary<int, float> memoriaPedida = new Dictionary<int, float>();
 
@@ -45,7 +48,7 @@ public partial class Mundo
     // La cámara del rig de VIROO (espera a que VIROO termine de arrancar)
     async Task<Camera> CamaraViroo()
     {
-        float limite = Time.realtimeSinceStartup + 40f;
+        float limite = Time.realtimeSinceStartup + 15f;
         bool avisado = false;
         while (Time.realtimeSinceStartup < limite)
         {
@@ -68,8 +71,16 @@ public partial class Mundo
             }
             await Task.Yield();
         }
-        Debug.LogWarning("[Calicraft] No llegó la cámara de VIROO; uso Camera.main");
-        return Camera.main;
+        Debug.LogWarning("[Calicraft] VIROO no arrancó: MODO DE PRUEBA (WASD caminar, flechas o Q/E girar, T siguiente estación)");
+        sinViroo = true;
+        var c0 = Camera.main;
+        if (c0 == null)
+        {
+            c0 = new GameObject("CamaraPrueba").AddComponent<Camera>();
+            c0.gameObject.AddComponent<AudioListener>();
+            c0.tag = "MainCamera";
+        }
+        return c0;
     }
 
     void BuscarManos()
@@ -102,6 +113,7 @@ public partial class Mundo
         if (panel == null) CrearPanel();
         if (marco == null) CrearMarco();
         CrearPantallas();   // las pantallas de video de los monumentos (Mundo.Videos.cs)
+        if (sinViroo) IrAEstacion(true);
 
         // lo que llegó por la red mientras se construía el mundo (incluye lo de quien entra tarde)
         var lista = new List<(string, bool)>(pendientes);
@@ -114,6 +126,7 @@ public partial class Mundo
     void ActualizarViroo(float dt)
     {
         if (cam == null) return;
+        if (sinViroo) MoverSinViroo(dt);
         var cabeza = cam.transform.position;
         int gx = Mathf.RoundToInt(cabeza.x), gz = Mathf.RoundToInt(cabeza.z);
         float suelo = terreno.AlturaSuelo(gx, gz);
@@ -141,6 +154,49 @@ public partial class Mundo
         MostrarMarco(rayo);
         ActualizarHud();
         ActualizarPanel(dt);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // MODO DE PRUEBA (sin VIROO): para recorrer el mundo desde el editor en Linux.
+    // WASD caminar (Shift corre); girar: flechas ← → o Q/E; mirar arriba/abajo: flechas ↑ ↓
+    // (pensado para portátil, sin mouse); también clic derecho + mouse. T = siguiente estación
+    // (punto de teletransporte), Y = volver al inicio. Se camina sobre el terreno: sube y baja con él.
+    void MoverSinViroo(float dt)
+    {
+        var t = cam.transform;
+        if (Input.GetMouseButton(1))
+        {
+            yawPrueba += Input.GetAxis("Mouse X") * 3f;
+            pitchPrueba = Mathf.Clamp(pitchPrueba - Input.GetAxis("Mouse Y") * 3f, -80f, 80f);
+        }
+        float giro = (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.E) ? 1 : 0) - (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.Q) ? 1 : 0);
+        float cabeceo = (Input.GetKey(KeyCode.DownArrow) ? 1 : 0) - (Input.GetKey(KeyCode.UpArrow) ? 1 : 0);
+        yawPrueba += giro * 90f * dt;
+        pitchPrueba = Mathf.Clamp(pitchPrueba + cabeceo * 60f * dt, -80f, 80f);
+        if (Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Y)) IrAEstacion(Input.GetKeyDown(KeyCode.Y));
+        t.rotation = Quaternion.Euler(pitchPrueba, yawPrueba, 0);
+        float h = (Input.GetKey(KeyCode.D) ? 1 : 0) - (Input.GetKey(KeyCode.A) ? 1 : 0);
+        float v = (Input.GetKey(KeyCode.W) ? 1 : 0) - (Input.GetKey(KeyCode.S) ? 1 : 0);
+        var adelante = t.forward; adelante.y = 0; adelante.Normalize();
+        var derecha = t.right; derecha.y = 0; derecha.Normalize();
+        float vel = Input.GetKey(KeyCode.LeftShift) ? 10f : 4.5f;
+        var p = t.position + (adelante * v + derecha * h) * vel * dt;
+        float suelo = terreno.AlturaSuelo(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.z));
+        p.y = Mathf.Lerp(p.y, suelo + 1.65f, Mathf.Clamp01(10f * dt));
+        t.position = p;
+    }
+
+    void IrAEstacion(bool alInicio)
+    {
+        var puntos = new List<TeleportPoint>(FindObjectsByType<TeleportPoint>(FindObjectsSortMode.None));
+        if (puntos.Count == 0) return;
+        puntos.Sort((a, b) => a.Index.CompareTo(b.Index));
+        puntoPrueba = alInicio ? 0 : (puntoPrueba + 1) % puntos.Count;
+        var tp = puntos[puntoPrueba];
+        cam.transform.position = tp.transform.position + Vector3.up * 1.65f;
+        yawPrueba = tp.transform.eulerAngles.y;
+        pitchPrueba = 5;
+        Aviso("Estación: " + tp.Label);
     }
 
     void LeerMandos(ref bool romper, ref bool poner, ref bool cambiar, float dt)
@@ -241,6 +297,9 @@ public partial class Mundo
     // red
     void Enviar(string datos)
     {
+        // modo de prueba: el simulador de VIROO del editor acepta el envío pero nunca lo devuelve,
+        // así que el cambio se aplica directo en este PC
+        if (sinViroo) { Aplicar(datos, true); return; }
         var red = CalicraftRed.Instancia;
         if (red != null && red.IsInitialized)
         {
@@ -306,7 +365,7 @@ public partial class Mundo
         }
     }
 
-    // los puntos se crean en el editor (VIROO → Calicraft → Configurar escena) con su x,z;
+    // los puntos se crean en el editor (menú Calicraft → Configurar escena VIROO) con su x,z;
     // aquí se bajan al suelo real, frente a su monumento o a la puerta de su casa
     void ColocarPuntosDeTeletransporte()
     {
@@ -356,10 +415,18 @@ public partial class Mundo
     void CrearHud()
     {
         hud = Texto3D("HUD", cam.transform, 0.03f, new Vector2(1.4f, 0.3f), TextAlignmentOptions.Bottom);
-        hud.transform.localPosition = new Vector3(0, -0.34f, 0.9f);
-        hud.transform.localRotation = Quaternion.Euler(20, 0, 0);
+        hud.transform.localPosition = new Vector3(0, -0.24f, 0.9f);   // dentro de la vista también en escritorio
+        hud.transform.localRotation = Quaternion.Euler(15, 0, 0);
         hud.outlineWidth = 0.2f;
         hud.outlineColor = new Color32(0, 0, 0, 220);
+        if (!esVR)   // escritorio: una mira en el centro (F y G apuntan ahí)
+        {
+            var mira = Texto3D("Mira", cam.transform, 0.04f, new Vector2(0.2f, 0.2f), TextAlignmentOptions.Center);
+            mira.transform.localPosition = new Vector3(0, 0, 0.9f);
+            mira.text = "+";
+            mira.outlineWidth = 0.25f;
+            mira.outlineColor = new Color32(0, 0, 0, 220);
+        }
     }
 
     void ActualizarHud()

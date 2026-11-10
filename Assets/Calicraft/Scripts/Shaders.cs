@@ -3,7 +3,7 @@ using UnityEngine;
 
 // Busca shaders sin depender de Shader.Find: al compilar, Unity descarta los shaders (y las variantes:
 // transparente, emisión) que ningún material del proyecto usa. Los materiales de
-// Resources/ShadersCalicraft (los crea VIROO → Calicraft → Configurar escena) los mantienen dentro del build.
+// Resources/ShadersCalicraft (los crea el menú Calicraft → Configurar escena VIROO) los mantienen dentro del build.
 public static class Shaders
 {
     static Dictionary<string, Shader> cache;
