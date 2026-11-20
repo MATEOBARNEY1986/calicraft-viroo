@@ -183,14 +183,19 @@ public partial class Mundo
         if (!ApuntarMundo(r, out var hit)) return false;
         var b = hit.collider.GetComponent<BotonVideo>();
         if (b == null) return false;
-        Enviar($"v|{b.memoria}|{b.video}");
+        // el video lo pone (y lo detiene) solo quien encontró esa memoria
+        Identificarme();
+        if (!duenoMemoria.TryGetValue(b.memoria, out var dueno)) { Aviso("Primero hay que encontrar esta memoria"); return true; }
+        if (dueno != miId) { Aviso("Este video lo pone " + NombreDe(dueno) + ", que encontró la memoria"); return true; }
+        Enviar($"v|{b.memoria}|{b.video}|{miId}");
         return true;
     }
 
     // llega por la red a todos
-    void ReproducirVideo(int memoria, int k)
+    void ReproducirVideo(int memoria, int k, string quien)
     {
         if (silencio) return;                              // quien entra tarde no ve arrancar videos viejos
+        if (!duenoMemoria.TryGetValue(memoria, out var dueno) || dueno != quien) return;   // solo el dueño de la memoria
         if (!pantallas.TryGetValue(memoria, out var p)) return;
         p.video.Stop();
         if (k < 0 || k >= p.videos.Count)

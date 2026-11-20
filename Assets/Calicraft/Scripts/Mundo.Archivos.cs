@@ -17,7 +17,7 @@ public partial class Mundo
         "agua.png", "arena.png", "hojas.png", "ladrillo.png", "mineral_carbon.png", "mineral_diamante.png",
         "mineral_hierro.png", "mineral_oro.png", "oro_bloque.png", "pasto_arriba.png", "pasto_lado.png",
         "piedra.png", "roca_base.png", "roca.png", "tablas.png", "tierra.png", "tnt.png",
-        "tronco_arriba.png", "tronco_lado.png", "vidrio.png",
+        "tronco_arriba.png", "tronco_lado.png", "vidrio.png", "vaca.png",
         "bronce.png", "marmol.png", "rosa.png", "amarillo.png", "azul.png", "negro.png", "rojo.png", "ventanal.png", "crema.png" };
 
     static string Url(string relativa)

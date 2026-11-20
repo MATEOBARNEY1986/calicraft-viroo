@@ -10,7 +10,7 @@ using UnityEngine;
 // Se gana con todas las memorias y todas las casas.
 public partial class Mundo
 {
-    public enum Cat { Naturaleza, Patrimonio, Cultura, Resistencia }
+    public enum Cat { Naturaleza, Patrimonio, Cultura, Resistencia, Creacion }
 
     public class Enlace
     {
@@ -33,6 +33,7 @@ public partial class Mundo
         Cat.Naturaleza => new Color(0.18f, 0.44f, 0.84f),
         Cat.Patrimonio => new Color(0.83f, 0.63f, 0.16f),
         Cat.Cultura => new Color(0.94f, 0.42f, 0.66f),
+        Cat.Creacion => new Color(0.21f, 0.65f, 0.32f),       // creaciones de los estudiantes (verde, como en la web)
         _ => new Color(0.78f, 0.06f, 0.18f),
     };
 
@@ -55,12 +56,14 @@ public partial class Mundo
     void CrearCalicraft()
     {
         cubos.Clear(); recogidos.Clear(); casas.Clear();
+        duenoMemoria.Clear(); nombreJugador.Clear(); memoriasDe.Clear();
         consignaVista = null; tConsigna = 0;
         ciclo.duracion = 540f;     // día de 9 minutos; la noche pasa al doble de rápido (CicloDia)
         ciclo.hora = 0.28f;
 
         // los monumentos de bloques (el centro de Cali, el río, los cerros, el biopatrimonio…)
         ConstruirMonumentos();
+        CrearCreaciones();         // las creaciones de los estudiantes (Mundo.Creaciones.cs), antes de poner los cubos
 
         // sobre cada monumento, su cubo de memoria con el rayo de luz
         foreach (var m in MEMORIAS)
@@ -207,12 +210,14 @@ public partial class Mundo
         }
     }
 
-    // (VIROO) llega por la red a todos los jugadores: la memoria es del grupo
-    void RecogerMemoria(int i)
+    // (VIROO) llega por la red a todos los jugadores, en el mismo orden: la memoria es de quien llegó primero
+    void RecogerMemoria(int i, string quien, string nombre)
     {
         if (i < 0 || i >= cubos.Count) return;
         var c = cubos[i];
-        if (c.obj == null) return;              // ya la había encontrado otro
+        if (c.obj == null) return;              // ya la había encontrado otro: se queda con su dueño
+        AnotarDueno(i, quien, nombre);
+        bool mia = quien == miId && miId != "";
         if (!silencio) Efectos.Destello(c.obj.position, ColorCat(c.m.cat));
         giran.Remove(c.obj);
         Destroy(c.obj.gameObject);
@@ -221,7 +226,7 @@ public partial class Mundo
         puntos += 50;
         Sonar("gema");
         MostrarConsigna(c.m, c.lugar);
-        if (!silencio) Aviso("Encontraron: " + c.m.nombre);
+        if (!silencio) Aviso(mia ? "¡Es tuya! " + c.m.nombre : $"{NombreDe(quien)} encontró: {c.m.nombre}");
         RevisarVictoria();
     }
 
@@ -248,7 +253,7 @@ public partial class Mundo
 
     void RevisarVictoria()
     {
-        if (recogidos.Count >= MEMORIAS.Length && CasasListas >= casas.Count) Terminar("RECUPERASTE LA MEMORIA");
+        if (recogidos.Count >= MEMORIAS.Length && CasasListas >= casas.Count) Terminar("RECUPERARON LA MEMORIA DE CALI Y EL VALLE");
     }
 
     // un monstruo te alcanzó: los malos pensamientos (de noche) te quitan la última memoria

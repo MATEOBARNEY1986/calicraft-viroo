@@ -19,7 +19,7 @@ public static class ConfigurarCalicraft
     const string ESCENA_VIEJA = "Assets/Calicraft/Scenes/Juego.unity";
     const string MATERIALES = "Assets/Calicraft/Resources/ShadersCalicraft";
 
-    [MenuItem("Calicraft/Configurar escena VIROO")]
+    [MenuItem("Calicraft/Avanzado/Rearmar escena (no hace falta)")]
     public static void Ejecutar()
     {
         CrearMateriales();

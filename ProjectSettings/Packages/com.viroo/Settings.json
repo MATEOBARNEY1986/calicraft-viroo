@@ -17,6 +17,11 @@
                 "value": "{\"m_Value\":\"\"}"
             },
             {
+                "type": "System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "key": "applicationIdentifier",
+                "value": "{\"m_Value\":\"c3a2e391-f637-48b7-a19c-f90c939dd0e7\"}"
+            },
+            {
                 "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
                 "key": "drawArenaSceneView",
                 "value": "{\"m_Value\":true}"
@@ -35,6 +40,11 @@
                 "type": "Microsoft.Extensions.Logging.LogLevel, Microsoft.Extensions.Logging.Abstractions, Version=10.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
                 "key": "editorLogLevel",
                 "value": "{\"m_Value\":3}"
+            },
+            {
+                "type": "System.String[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
+                "key": "applicationLanguages",
+                "value": "{\"m_Value\":[\"es-CO\"]}"
             }
         ]
     }

@@ -2,9 +2,9 @@
     "m_Dictionary": {
         "m_DictionaryValues": [
             {
-                "type": "Viroo.SceneLoader.ApplicationPublisher.Editor.ApplicationSceneBuilderItemData[], Viroo.SceneLoader.ApplicationPublisher.Editor, Version=3.1.258.0, Culture=neutral, PublicKeyToken=null",
+                "type": "Viroo.SceneLoader.ApplicationPublisher.Editor.ApplicationSceneBuilderItemData[], Viroo.SceneLoader.ApplicationPublisher.Editor, Version=3.1.259.0, Culture=neutral, PublicKeyToken=null",
                 "key": "items",
-                "value": "{\"m_Value\":[]}"
+                "value": "{\"m_Value\":[{\"identifier\":\"0ac1db73-e15c-4df8-a305-254aff635c22\",\"title\":\"calicraft\",\"thumbnail\":{\"instanceID\":0},\"sceneAsset\":{\"fileID\":102900000,\"guid\":\"99b455c0aba36c3de8d8e39fa92a0347\",\"type\":3},\"enabled\":true}]}"
             },
             {
                 "type": "System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",

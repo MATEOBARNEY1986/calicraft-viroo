@@ -76,3 +76,10 @@ crashlytics-build.properties
 
 # Sonarqube working area
 .sonarqube/
+# Calicraft: builds y archivos locales que no van al repositorio
+/calicraftviroo/
+*.virooapp
+editor.log
+*.bak_*
+manifest.json.bak*
+mono_crash*

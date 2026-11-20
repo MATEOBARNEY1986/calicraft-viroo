@@ -4,13 +4,25 @@ Proyecto de Unity listo para compilar como aplicación VIROO, para usarse en la 
 Lo preparó Mateo Barney (docente, curso Modelado Digital). Para compilarlo hace falta una cuenta de la
 organización en VIROO Cloud, porque VIROO cifra la aplicación con las claves de la aplicación creada allí.
 
+## Importante: este zip NO se sube a VIROO Cloud
+
+Este zip es el **proyecto de Unity** (código fuente). Si se sube tal cual en *VIROO Cloud → Archivos de la
+aplicación*, aparece el error **«No se encontró la entrada de metadatos en el archivo ZIP»**.
+
+Esa casilla solo acepta la aplicación **ya compilada** que genera el **Application Builder** de VIROO dentro de
+Unity (paso 4). Ese archivo trae adentro `metadata.yml` y va cifrado con la clave de la aplicación; por eso el
+Application Builder pide iniciar sesión en la pestaña **Account** con un usuario de la organización.
+
+Resumen: abrir este proyecto en Unity → iniciar sesión → Application Builder → Build → subir **el archivo que
+sale del Build** (no este zip).
+
 ## Requisitos
 
 | | |
 |---|---|
 | Unity | **6000.0 LTS**. Se probó con **6000.0.85f2**; VIROO Studio 3.1 recomienda la última 6000.0.x |
 | Módulo de Unity | **Windows Build Support (Mono)** |
-| VIROO Studio | **3.1.258** (ya viene en `Packages/manifest.json`; Unity lo descarga al abrir el proyecto) |
+| VIROO Studio | **3.1.259** (ya viene en `Packages/manifest.json`; Unity lo descarga al abrir el proyecto) |
 | Sala | Room Player 3.1.427 y gafas HTC VIVE Focus Vision |
 
 ## Pasos
@@ -27,14 +39,18 @@ organización en VIROO Cloud, porque VIROO cifra la aplicación con las claves d
      - en la lista, elegir la aplicación `calicraft` creada en el paso 1;
      - Application Identifier: `calicraft` · Application Name: `Calicraft` · idioma: español;
      - escenas: agregar `Assets/Calicraft/Scenes/Calicraft.unity` y marcarla como **Lobby**;
-     - **Build**.
-   - **Application Uploader**: elegir el `.virooapp` generado y darle **Upload**.
+     - **Build**. Tarda varios minutos y deja la aplicación compilada y cifrada.
+   - **Application Uploader**: elegir el archivo generado por el Build y darle **Upload**.
+     También se puede subir ese mismo archivo a mano en *VIROO Cloud → Archivos de la aplicación*.
+     (Repito: el archivo del Build, no el zip del proyecto.)
 5. **Crear una sesión** con Calicraft para la sala.
 
 ## Qué contiene la experiencia
 
-- Un mundo de bloques (estilo Minecraft) con monumentos y memoria de Cali y el Pacífico: 21 cubos de memoria con
-  sus consignas y 5 casas del terremoto para reconstruir.
+- Un mundo de bloques (estilo Minecraft) con monumentos y memoria de Cali y el Pacífico: cubos de memoria con
+  sus consignas, 5 casas del terremoto para reconstruir y las **creaciones de los estudiantes** del curso
+  (modelos 3D en `Assets/Calicraft/Resources/creaciones`, cubos de memoria verdes).
+- Cada memoria queda a nombre del primer jugador que la encuentra; al final se muestra quién recuperó más.
 - **Multiusuario cooperativo.** Los bloques que se ponen o rompen, las memorias encontradas y los videos se
   sincronizan entre todos con una acción propia (`CalicraftRed`, una `BroadcastObjectAction` con persistencia
   *All*), así que quien entra tarde recibe el mundo en el estado en que va.

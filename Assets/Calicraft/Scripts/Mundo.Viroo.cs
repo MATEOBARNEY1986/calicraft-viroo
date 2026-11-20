@@ -15,7 +15,8 @@ using Viroo.Teleport;
 //   - el jugador lo pone VIROO (cámara, manos, avatar); aquí no hay CharacterController propio;
 //   - el mundo es el mismo para todos (semilla fija) y los cambios viajan por CalicraftRed;
 //   - hay un punto de teletransporte en cada monumento y en cada casa del terremoto;
-//   - modo cooperativo: sin monstruos ni vidas; las memorias y las casas son del grupo.
+//   - sin monstruos ni vidas; las casas son del grupo, pero cada MEMORIA es de quien llega primero:
+//     solo esa persona puede poner su video y al final sale la tabla de quién recuperó más.
 public partial class Mundo
 {
     public static Mundo Instancia { get; private set; }
@@ -33,6 +34,12 @@ public partial class Mundo
     int puntoPrueba = -1;
     Transform manoIzq, manoDer;
     readonly Dictionary<int, float> memoriaPedida = new Dictionary<int, float>();
+
+    // quién soy y de quién es cada memoria (el identificador es el ClientId de VIROO)
+    string miId = "", miNombre = "";
+    readonly Dictionary<int, string> duenoMemoria = new Dictionary<int, string>();      // memoria -> jugador
+    readonly Dictionary<string, string> nombreJugador = new Dictionary<string, string>(); // jugador -> nombre
+    readonly Dictionary<string, int> memoriasDe = new Dictionary<string, int>();        // jugador -> cuántas
 
     TextMeshPro hud;
     Transform panel, fondoPanel;
@@ -285,12 +292,69 @@ public partial class Mundo
         return false;
     }
 
-    // se pide una vez; si en 3 s no volvió por la red, se puede pedir de nuevo
+    // se pide una vez; si en 3 s no volvió por la red, se puede pedir de nuevo.
+    // El mensaje lleva quién la pide: el servidor los ordena y la memoria es del primero que llega.
     void PedirMemoria(int i)
     {
         if (memoriaPedida.TryGetValue(i, out float t) && Time.time - t < 3f) return;
         memoriaPedida[i] = Time.time;
-        Enviar("m|" + i);
+        Identificarme();
+        Enviar($"m|{i}|{miId}|{miNombre}");
+    }
+
+    // mi identificador en la sesión (ClientId de VIROO) y el nombre de mi avatar, si tiene
+    void Identificarme()
+    {
+        if (miId != "") return;
+        try
+        {
+            var yo = VirooApi.Instance.Players().GetLocalPlayer();
+            if (yo != null && yo.PlayerData != null && !string.IsNullOrEmpty(yo.PlayerData.ClientId))
+            {
+                miId = LimpiarTexto(yo.PlayerData.ClientId, 64);
+                try { miNombre = LimpiarTexto(yo.PlayerAvatar?.GetAvatarName(), 16); }
+                catch (Exception) { miNombre = ""; }
+            }
+        }
+        catch (Exception e) { Debug.LogWarning("[Calicraft] No pude leer el jugador de VIROO: " + e.Message); }
+        if (miId == "") miId = sinViroo ? "local" : "j" + Guid.NewGuid().ToString("N").Substring(0, 8);
+    }
+
+    // los mensajes van separados por "|": el texto no puede traerlo
+    static string LimpiarTexto(string s, int max)
+    {
+        if (string.IsNullOrEmpty(s)) return "";
+        s = s.Replace("|", " ").Replace("\n", " ").Replace("\r", " ").Replace("<", "").Replace(">", "").Trim();
+        return s.Length > max ? s.Substring(0, max) : s;
+    }
+
+    // Anota de quién es la memoria. Sin nombre de avatar queda "Jugador N", por orden de llegada de su
+    // primera memoria: como los mensajes llegan a todos en el mismo orden, el número es igual en todos.
+    void AnotarDueno(int i, string id, string nombre)
+    {
+        if (string.IsNullOrEmpty(id)) id = "?";
+        if (!nombreJugador.ContainsKey(id))
+            nombreJugador[id] = string.IsNullOrEmpty(nombre) ? "Jugador " + (nombreJugador.Count + 1) : nombre;
+        duenoMemoria[i] = id;
+        memoriasDe[id] = (memoriasDe.TryGetValue(id, out int n) ? n : 0) + 1;
+    }
+
+    string NombreDe(string id) => id != null && nombreJugador.TryGetValue(id, out var n) ? n : "otro jugador";
+    int MisMemorias => miId != "" && memoriasDe.TryGetValue(miId, out int n) ? n : 0;
+
+    // la tabla del final: quién recuperó más memorias (hasta 10 renglones)
+    string TablaDeMemorias()
+    {
+        var lista = new List<KeyValuePair<string, int>>(memoriasDe);
+        lista.Sort((a, b) => b.Value != a.Value ? b.Value.CompareTo(a.Value) : string.CompareOrdinal(NombreDe(a.Key), NombreDe(b.Key)));
+        var sb = new System.Text.StringBuilder();
+        for (int k = 0; k < lista.Count && k < 10; k++)
+        {
+            bool yo = lista[k].Key == miId;
+            string renglon = $"{k + 1}. {NombreDe(lista[k].Key)}{(yo ? " (tú)" : "")}: {lista[k].Value}";
+            sb.Append(yo ? $"<color=#FFE066>{renglon}</color>" : renglon).Append(k % 2 == 0 ? "      " : "\n");
+        }
+        return sb.ToString().TrimEnd();
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -326,8 +390,8 @@ public partial class Mundo
             {
                 case "r": AplicarRomper(Celda3(p)); break;
                 case "p": AplicarPoner(Celda3(p), (B)int.Parse(p[4], CultureInfo.InvariantCulture)); break;
-                case "m": RecogerMemoria(int.Parse(p[1], CultureInfo.InvariantCulture)); break;
-                case "v": ReproducirVideo(int.Parse(p[1], CultureInfo.InvariantCulture), int.Parse(p[2], CultureInfo.InvariantCulture)); break;
+                case "m": RecogerMemoria(int.Parse(p[1], CultureInfo.InvariantCulture), p.Length > 2 ? p[2] : "", p.Length > 3 ? p[3] : ""); break;
+                case "v": ReproducirVideo(int.Parse(p[1], CultureInfo.InvariantCulture), int.Parse(p[2], CultureInfo.InvariantCulture), p.Length > 3 ? p[3] : ""); break;
                 default: Debug.LogWarning("[Calicraft] Mensaje desconocido: " + datos); break;
             }
         }
@@ -431,9 +495,9 @@ public partial class Mundo
 
     void ActualizarHud()
     {
-        string linea = $"Memorias {recogidos.Count}/{MEMORIAS.Length}   ·   Casas {CasasListas}/{casas.Count}   ·   Bloque: {tipos[tipoSel].nombre}";
+        string linea = $"Tus memorias {MisMemorias}   ·   Grupo {recogidos.Count}/{MEMORIAS.Length}   ·   Casas {CasasListas}/{casas.Count}   ·   Bloque: {tipos[tipoSel].nombre}";
         if (tAviso > 0 && aviso != "") linea = $"<color=#FFE066>{aviso}</color>\n" + linea;
-        if (termino) linea = $"<color=#7FE9FF>{tituloFin}</color>\n" + linea;
+        if (termino) linea = $"<color=#7FE9FF>{tituloFin}</color>\n{TablaDeMemorias()}\n" + linea;
         hud.text = linea;
     }
 

@@ -230,7 +230,7 @@ public partial class Mundo
                 if (i >= 58 && i <= 62) { terreno.Set(i, b - 2, k, B.Arena); terreno.Set(i, b - 1, k, B.Azul); }
                 else terreno.Set(i, b - 1, k, B.Piedra);
             }
-        for (int i = 57; i <= 63; i++) { terreno.Set(i, b - 1, -33, B.Ladrillo); terreno.Set(i, b, -34, B.Ladrillo); terreno.Set(i, b, -32, B.Ladrillo); }
+        // el Puente Ortiz ya no es de bloques: es el modelo de Mayer Cuero (creaciones, sobre el río en z = -33)
         GatoDelRio(Pin(50, b, -5, 3));
         Gata(Pin(52, b, 8, 1), B.Rosa); Gata(Pin(52, b, 20, 1), B.Amarillo); Gata(Pin(67, b, 5, 3), B.Azul); Gata(Pin(67, b, 18, 3), B.Rosa);
         Ermita(Pin(74, b, -20, 3));

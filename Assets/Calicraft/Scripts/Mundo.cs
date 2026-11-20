@@ -94,6 +94,8 @@ public partial class Mundo : MonoBehaviour
     // =====================================================================
     async void Start()
     {
+        // Marcas de arranque: en el Player.log de la sala muestran en qué paso se queda.
+        Debug.Log($"[Calicraft] 1/4 Arranca la escena (Unity {Application.unityVersion}, {Application.productName})");
         // (VIROO) no se apagan cámaras ni luces de la escena: son las del rig de VIROO
         fuente = Resources.Load<Font>("PressStart2P-Regular");
         audioSrc = gameObject.AddComponent<AudioSource>();
@@ -115,6 +117,7 @@ public partial class Mundo : MonoBehaviour
         // la cámara es la del rig de VIROO (gafas o escritorio); solo se le alarga la vista
         cam = await CamaraViroo();
         if (cam != null && cam.farClipPlane < 160) cam.farClipPlane = 160;
+        Debug.Log("[Calicraft] 2/4 Cámara: " + (cam != null ? cam.name + " (display " + cam.targetDisplay + ")" : "NINGUNA"));
 
         ciclo = gameObject.AddComponent<CicloDia>();
         ciclo.sol = sol;
@@ -124,6 +127,7 @@ public partial class Mundo : MonoBehaviour
         // sin minimapa (no hay pantalla en VR) ni personajes del curso (VIROO pone los avatares)
 
         await PrecargarTexturas();
+        Debug.Log("[Calicraft] 3/4 Texturas cargadas desde " + Application.streamingAssetsPath);
         Construir();
     }
 
@@ -163,7 +167,9 @@ public partial class Mundo : MonoBehaviour
         jugando = true;
         yaEmpezo = true;
         cargando = false;
+        Debug.Log("[Calicraft] 4/4 Mundo armado");
         PrepararViroo();
+        IniciarPruebaSiPide();             // solo con -calicraftPrueba (Mundo.Prueba.cs)
     }
 
     // =====================================================================
